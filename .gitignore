@@ -1,0 +1,19 @@
+# old files
+./results/archive
+./results/old
+
+# compressed files
+*.tar.xz
+*.zip
+
+# subjects data
+./data/archive
+./data/old
+
+# saliency values
+./videos_sal/archive
+./videos_sal/old
+./videos_sal/deepgaze
+
+# cache for auc
+./cache
