@@ -16,4 +16,4 @@
 ./videos_sal/deepgaze/
 
 # cache for auc
-./cache/
+cache/
