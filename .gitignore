@@ -10,6 +10,7 @@ results/debug/
 # subjects data
 data/archive/
 data/old/
+data/ETFinalCutSampleEC07/
 
 # saliency values
 videos_sal/archive/
