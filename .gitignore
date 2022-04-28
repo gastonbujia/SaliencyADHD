@@ -2,9 +2,10 @@
 results/archive/
 results/old/
 
-# compressed files
+# compressed files and videos
 *.tar.xz
 *.zip
+*.mp4
 
 # subjects data
 data/archive/
