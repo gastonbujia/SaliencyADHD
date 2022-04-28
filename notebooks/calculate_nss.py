@@ -139,10 +139,16 @@ def calculate_metric_dataset(data_path,
     
     # itereate over subjects
     for fold_subj in tqdm(sorted(os.listdir(data_path))):
+        
         # check if metadata is present
         if fold_subj not in list(metadata['ID'].unique()):
             missing_metadata.append(fold_subj)
         
+        # ignore hidden folders
+        if fold_subj.startswith('.'):
+            continue
+        
+        # load correspondig csv file if video seen
         csv_files    = os.listdir(os.path.join(data_path,fold_subj))
         csv_vid_file = [f for f in csv_files if vid[vid_name] in f]
         if len(csv_vid_file) ==0:
@@ -222,13 +228,14 @@ if __name__=="__main__":
     df_nss_aux = pd.DataFrame(results_nss[0])
     df_nss_aux.columns = ['ID', 'FIX_idx', 'NSS','NSS_MEAN', 'FIX_IN_VID', 'FLAG', 'VIDEO_NAME', 'ET_FILE']
     df_nss_exploded = explode(df_nss_aux, ['FIX_idx','NSS'])
-    df_final = add_frame_idx(df_nss_exploded.reset_index(), 
-                             vid_name = VIDEO, 
-                             data_path='./',
-                             trials_data=trials_data, 
-                             videos_data=videos_data)
+    #df_final = add_frame_idx(df_nss_exploded.reset_index(), 
+    #                         vid_name = VIDEO, 
+    #                         data_path='./',
+    #                         trials_data=trials_data, 
+    #                         videos_data=videos_data)
     
-    df_final.drop(columns=['index', 'FLAG']).to_csv(os.path.join(results_path, vid_codes[VIDEO], 'results_nss.csv'), index=False)
+    df_nss_exploded.drop(columns=['index', 'FLAG']).to_csv(os.path.join(results_path, vid_codes[VIDEO], 
+                                                                        'results_nss.csv'), index=False)
 
     # dump debug
     with open(os.path.join(results_path, vid_codes[VIDEO], 'dump_nss.json'), 'w') as jf:
