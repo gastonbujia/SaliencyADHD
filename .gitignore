@@ -1,6 +1,6 @@
-# old files
+# only final results
 results/archive/
-results/old/
+results/debug/
 
 # compressed files and videos
 *.tar.xz
@@ -18,3 +18,8 @@ videos_sal/deepgaze/
 
 # cache for auc
 cache/
+
+# only needed scripts
+notebooks/old/
+notebooks/scripts/old/
+notebooks/scripts/deepgaze/
