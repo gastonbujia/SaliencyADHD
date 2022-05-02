@@ -200,6 +200,8 @@ def main():
 
 if __name__=="__main__":
     
+    # IMPROVE: Change the hardcoded trial resolution size if necessary
+    
     # init parser
     parser = argparse.ArgumentParser()
     parser.add_argument('-V','--video',required='True',type=str,choices=['Diary','Present','Fractals'])
@@ -244,11 +246,12 @@ if __name__=="__main__":
     df_nss_exploded = explode(df_nss_aux, ['FIX_idx','NSS']).reset_index(drop=True)
     
     # save results
-    #df_nss_exploded.drop(columns=['FLAG']).to_csv(os.path.join(results_path, vid_codes[VIDEO], 
-    #                                                                    f'results_nss_{SALIENCY}.csv'), index=False)
+    df_nss_exploded.drop(columns=['FLAG']).to_csv(os.path.join(results_path, vid_codes[VIDEO], 
+                                                                        f'results_nss_{SALIENCY}.csv'), index=False)
 
     # dump debug
-    #with open(os.path.join(results_path, vid_codes[VIDEO], f'dump_nss_{SALIENCY}.json'), 'w') as jf:
-    #    json.dump(results_nss[1], jf)
+    with open(os.path.join(results_path, vid_codes[VIDEO], f'dump_nss_{SALIENCY}.json'), 'w') as jf:
+        json.dump(results_nss[1], jf)
         
-    print('Ok! BUT NOT SAVED')
+    #print('Ok! BUT NOT SAVED')
+    print('Ok and saved!')
