@@ -2,6 +2,10 @@
 results/archive/
 results/debug/
 
+# big folders
+results/
+videos_sal/
+
 # compressed files and videos
 *.tar.xz
 *.zip
