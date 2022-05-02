@@ -146,7 +146,7 @@ def calculate_metric_dataset(data_path,
     print('Warning: the data is assumed to be in the following resolution: trial_resol_width=800, trial_resol_height=600')
     # itereate over subjects
     datadir = sorted(os.listdir(data_path))
-    with tqdm(len(datadir)) as pbar:
+    with tqdm(range(len(datadir))) as pbar:
         for fold_subj in datadir:
 
             # check if metadata is present
