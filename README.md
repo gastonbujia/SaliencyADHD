@@ -8,7 +8,6 @@ python calculate_nss.py -V 'Present' -S 'spectral'
 
 Then to join the resulting dfs:
 
-
 <code>
 python join_nss_df.py
 </code>
@@ -16,3 +15,39 @@ python join_nss_df.py
 To download saliency maps and results:
 
 LINK
+
+Dir structs
+```bash
+├── cache
+├── data
+│   ├── archive
+│   ├── ETFinalCutSampleEC07
+│       └── ETFinalCutSample
+├── notebooks
+│   └── scripts
+├── results
+│   ├── FF
+│   ├── TP
+│   └── WK
+├── videos_data
+│   ├── Diary
+│   ├── Fractals
+│   └── Present
+└── videos_sal
+    ├── deepgazeii
+    │   ├── Diary
+    │   ├── Fractals
+    │   └── Present
+    ├── finegrained
+    │   ├── Diary
+    │   ├── Fractals
+    │   └── Present
+    ├── spectral
+    │   ├── Diary
+    │   ├── Fractals
+    │   └── Present
+    └── vinet
+        ├── Diary
+        ├── Fractals
+        └── Present
+```
