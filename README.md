@@ -17,7 +17,7 @@ To download saliency maps and results:
 LINK
 
 Dir structs
-'''bash
+```bash
 ├── cache
 ├── data
 │   ├── archive
@@ -50,4 +50,4 @@ Dir structs
         ├── Diary
         ├── Fractals
         └── Present
-'''
+```
