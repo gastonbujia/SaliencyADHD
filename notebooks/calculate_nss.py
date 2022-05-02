@@ -3,7 +3,7 @@ import json
 import argparse
 import numpy as np
 import pandas as pd
-from tqdm.notebook import tqdm
+from tqdm import tqdm
 from numpy.lib.format import open_memmap
 
 from scripts.data import *
@@ -13,13 +13,13 @@ from scripts.main import *
 from scripts.saliency_metrics import *
 
 # auxiliar funcs
-def create_saliency_matrix(video_path, saliency_path ='../videos_sal/vinet'):
-    folder = video_path
+def create_saliency_matrix(video_folder, saliency_path ='../videos_sal/vinet'):
+    
     maps = []
-    for img in sorted(os.listdir(os.path.join(saliency_path, folder))):
+    for img in sorted(os.listdir(os.path.join(saliency_path, video_folder))):
         if img[0] == '.':
             continue
-        maps.append(cv2.imread(os.path.join(saliency_path, folder, img), cv2.IMREAD_GRAYSCALE))
+        maps.append(cv2.imread(os.path.join(saliency_path, video_folder, img), cv2.IMREAD_GRAYSCALE))
     return np.stack(maps, axis=2)
 
 # add frame idx
@@ -138,46 +138,52 @@ def calculate_metric_dataset(data_path,
         sal_std[i] = saliency[:,:,i].std()
     
     # itereate over subjects
-    for fold_subj in tqdm(sorted(os.listdir(data_path))):
-        
-        # check if metadata is present
-        if fold_subj not in list(metadata['ID'].unique()):
-            missing_metadata.append(fold_subj)
-        
-        # ignore hidden folders
-        if fold_subj.startswith('.'):
-            continue
-        
-        # load correspondig csv file if video seen
-        csv_files    = os.listdir(os.path.join(data_path,fold_subj))
-        csv_vid_file = [f for f in csv_files if vid[vid_name] in f]
-        if len(csv_vid_file) ==0:
-            video_not_seen.append(fold_subj)
-            continue
-        
-        # load et file
-        et_file      = os.path.join(data_path, fold_subj, csv_vid_file[0])
-        df_et        = pd.read_csv(et_file)
-        
-        # get video frame timestamps
-        frame_timest = videos_data.loc[vid_name,'FramesTimestamps']
-                  
-        try:  
-            df_fix, score, mean_score, flag = calculate_metric_subject(df_et,
-                                                                       videos_data, 
-                                                                       vid_name, 
-                                                                       saliency, 
-                                                                       sal_mean, 
-                                                                       sal_std,
-                                                                       metric, 
-                                                                       frame_dur, 
-                                                                       frame_timest)
-        
-            results.append((fold_subj,  df_fix.index, score, mean_score, len(df_fix), flag, vid_name, et_file))
-        except:
-            error_list.append(fold_subj)
-            continue
-        
+    datadir = sorted(os.listdir(data_path))
+    with tqdm(len(datadir)) as pbar:
+        for fold_subj in datadir:
+
+            # check if metadata is present
+            if fold_subj not in list(metadata['ID'].unique()):
+                missing_metadata.append(fold_subj)
+
+            # ignore hidden folders
+            if fold_subj.startswith('.'):
+                pbar.update()
+                continue
+            
+            # load correspondig csv file if video seen
+            csv_files    = os.listdir(os.path.join(data_path,fold_subj))
+            csv_vid_file = [f for f in csv_files if vid[vid_name] in f]
+            if len(csv_vid_file) ==0:
+                video_not_seen.append(fold_subj)
+                pbar.update()
+                continue
+            
+            # load et file
+            et_file      = os.path.join(data_path, fold_subj, csv_vid_file[0])
+            df_et        = pd.read_csv(et_file)
+
+            # get video frame timestamps
+            frame_timest = videos_data.loc[vid_name,'FramesTimestamps']
+
+            try:  
+                df_fix, score, mean_score, flag = calculate_metric_subject(df_et,
+                                                                           videos_data, 
+                                                                           vid_name, 
+                                                                           saliency, 
+                                                                           sal_mean, 
+                                                                           sal_std,
+                                                                           metric, 
+                                                                           frame_dur, 
+                                                                           frame_timest)
+
+                results.append((fold_subj,  df_fix.index, score, mean_score, len(df_fix), flag, vid_name, et_file))
+                pbar.update()
+            except:
+                error_list.append(fold_subj)
+                pbar.update()
+                continue
+            
     return results, {'missing_metadata': missing_metadata, 
                      'video_not_seen': video_not_seen,
                      'errors': error_list}
@@ -187,56 +193,55 @@ def main():
 
 if __name__=="__main__":
     
-    # TODO add arguments to paths
-    # TODO check video timestamps
-    # TODO replace function to add frames idx
-    # TODO pass everything to a main function
-    
     # init parser
     parser = argparse.ArgumentParser()
     parser.add_argument('-V','--video',required='True',type=str,choices=['Diary','Present','Fractals'])
     parser.add_argument('-S','--saliency',required='True',type=str,choices=['vinet','deepgazeii','spectral','finegrained'],help='saliency model')
-    parser.add_argument('-dp','--dpath', type=str, help='data path')
-    parser.add_argument('-sp','--spath', type=str, help='saliency path')
-    parser.add_argument('-rp','--rpath', type=str, help='results path')
+    parser.add_argument('-dp','--datapath',default = None,type=str, help='Path to subjects data')
+    parser.add_argument('-sp','--salpath', default = None,type=str, help='Path to saliency models as images')
+    parser.add_argument('-rp','--respath', default = None,type=str, help='Path to results folders')
+    parser.add_argument('-vp','--vidpath', default = None,type=str, help='Path to VideoData file')
+    parser.add_argument('-mp','--metapath', default = None,type=str, help='Path to PhenoDataFinal file') 
     args = parser.parse_args()
     
     VIDEO = args.video
     SALIENCY = args.saliency
     
-    # initialize paths 
-    data_path       = os.path.join('..','data','ETFinalCutSampleEC07','ETFinalCutSample')
-    results_path    = os.path.join('..', 'results')
-    saliency_path   = os.path.join('..', 'videos_sal', SALIENCY)
-    #percentils_path = os.path.join('..', 'cache')
-
-    # initialize trials, video and metadata dfs
-    trials_data = load_trials_data()
-    videos_data = load_video_data()
-    metadata    = load_metadata()
-    
     # video names to codes
     vid_codes   = {'Diary': 'WK', 'Fractals': 'FF', 'Present': 'TP'}
-        
+    
+    if args.datapath is None: data_path     = os.path.join('..','data','ETFinalCutSampleEC07','ETFinalCutSample')
+    if args.respath is None:  results_path  = os.path.join('..', 'results')
+    if args.salpath is None:  saliency_path = os.path.join('..', 'videos_sal', SALIENCY)
+    if args.vidpath is None:  videos_path   = os.path.join('..', 'videos_data')
+    if args.metapath is None: metadata_path = os.path.join('..', 'data')
+    
+    # initialize trials, video and metadata dfs
+    videos_data = load_video_data(videos_path)
+    metadata    = load_metadata(metadata_path)
+            
+    print('Loading saliency map...')
+    saliency = create_saliency_matrix(VIDEO, saliency_path=saliency_path)
+
+    print('Calculating metric...')
     results_nss = calculate_metric_dataset(data_path, 
                                            videos_data,
                                            metadata,
+                                           saliency = saliency,
                                            vid_name = VIDEO,
                                            saliency_path = saliency_path)
     
-    # postprocess
+    print('Postprocessing...')
     df_nss_aux = pd.DataFrame(results_nss[0])
     df_nss_aux.columns = ['ID', 'FIX_idx', 'NSS','NSS_MEAN', 'FIX_IN_VID', 'FLAG', 'VIDEO_NAME', 'ET_FILE']
     df_nss_exploded = explode(df_nss_aux, ['FIX_idx','NSS'])
-    #df_final = add_frame_idx(df_nss_exploded.reset_index(), 
-    #                         vid_name = VIDEO, 
-    #                         data_path='./',
-    #                         trials_data=trials_data, 
-    #                         videos_data=videos_data)
     
+    # save results
     df_nss_exploded.drop(columns=['index', 'FLAG']).to_csv(os.path.join(results_path, vid_codes[VIDEO], 
-                                                                        'results_nss.csv'), index=False)
+                                                                        f'results_nss_{SALIENCY}lala.csv'), index=False)
 
     # dump debug
-    with open(os.path.join(results_path, vid_codes[VIDEO], 'dump_nss.json'), 'w') as jf:
+    with open(os.path.join(results_path, vid_codes[VIDEO], f'dump_nss_{SALIENCY}lala.json'), 'w') as jf:
         json.dump(results_nss[1], jf)
+        
+    print('Ok!')

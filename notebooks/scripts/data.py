@@ -9,9 +9,8 @@ def get_ids(file):
     video_id =  file_splitted[-1].split('_')[1]
     return subj_folder_id, video_id
 
-def load_trials_data(working_path='..'):
+def load_trials_data(trial_data_path = os.path.join('..','data/VideoMatchingSrate_corr.csv')):
     
-    trial_data_path = os.path.join(working_path,'data/VideoMatchingSrate_corr.csv') 
     trial_data = pd.read_csv(trial_data_path)
     trial_data['ID'] = trial_data['FilePath'].apply(lambda x: x.split('/')[-2])
     trial_data['Video_ID'] = trial_data['FilePath'].apply(lambda x: x.split('/')[-1].split('_')[1])
@@ -20,9 +19,9 @@ def load_trials_data(working_path='..'):
 
     return trial_data.set_index(_trial_data_midx_).drop(columns=_trial_data_midx_.names)
     
-def load_video_data(working_path='..'):
-    
-    video_data_path = os.path.join(working_path,'videos_data/VideoData.csv') 
+def load_video_data(video_data_path=os.path.join('..','videos_data')):
+                                                 
+    video_data_path = os.path.join(video_data_path,'VideoData.csv')
     video_data = pd.read_csv(video_data_path)
     video_data['FramesTimestamps'] = video_data.Time.apply(lambda x: np.array(str2list(x)))
     video_list = ['Diary_of_a_Wimpy_Kid_Trailer.mp4',
@@ -40,9 +39,9 @@ def load_video_data(working_path='..'):
     video_data['Short Name'] = ['WK','FF', 'TP', 'DM']
     return video_data.drop(columns=['Time'])
 
-def load_metadata(working_path ='..'):
+def load_metadata(metadata_path = os.path.join('..','data')):
     
-    metadata_path = os.path.join(working_path,'data/PhenoDataFinal.csv')
+    metadata_path = os.path.join(metadata_path,'PhenoDataFinal.csv')
     metadata = pd.read_csv(metadata_path)
     metadata['SWAN']= pd.to_numeric(metadata.SWAN_Total.str.replace(",", "Nan"), errors='coerce')
     metadata['Age'] = metadata.Age.replace('.',0).astype(float)
