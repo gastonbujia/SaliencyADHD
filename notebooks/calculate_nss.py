@@ -234,14 +234,14 @@ if __name__=="__main__":
     print('Postprocessing...')
     df_nss_aux = pd.DataFrame(results_nss[0])
     df_nss_aux.columns = ['ID', 'FIX_idx', 'NSS','NSS_MEAN', 'FIX_IN_VID', 'FLAG', 'VIDEO_NAME', 'ET_FILE']
-    df_nss_exploded = explode(df_nss_aux, ['FIX_idx','NSS'])
+    df_nss_exploded = explode(df_nss_aux, ['FIX_idx','NSS']).reset_index(drop=True)
     
     # save results
-    df_nss_exploded.drop(columns=['index', 'FLAG']).to_csv(os.path.join(results_path, vid_codes[VIDEO], 
-                                                                        f'results_nss_{SALIENCY}lala.csv'), index=False)
+    df_nss_exploded.drop(columns=['FLAG']).to_csv(os.path.join(results_path, vid_codes[VIDEO], 
+                                                                        f'results_nss_{SALIENCY}.csv'), index=False)
 
     # dump debug
-    with open(os.path.join(results_path, vid_codes[VIDEO], f'dump_nss_{SALIENCY}lala.json'), 'w') as jf:
+    with open(os.path.join(results_path, vid_codes[VIDEO], f'dump_nss_{SALIENCY}.json'), 'w') as jf:
         json.dump(results_nss[1], jf)
         
     print('Ok!')
