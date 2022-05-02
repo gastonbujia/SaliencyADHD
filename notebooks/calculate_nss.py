@@ -9,7 +9,6 @@ from numpy.lib.format import open_memmap
 from scripts.data import *
 from scripts.preprocessing import *
 from scripts.utils import *
-from scripts.main import *
 from scripts.saliency_metrics import *
 
 # auxiliar funcs
@@ -55,7 +54,8 @@ def calculate_metric_subject(df_et,
                              metric,
                              frame_dur=None,
                              frame_timest=None):
-    """_summary_
+    """
+        Warning, this function assumes that every subject has a resolution size of trial_resol_width=800, trial_resol_height=600
 
     Args:
         df_et (pd.DataFrame): _description_
@@ -81,6 +81,12 @@ def calculate_metric_subject(df_et,
     # drop fixations after video ended
     df_fix = df_fix[df_fix['start_time']//frame_dur < saliency.shape[-1]]
     
+    # as it is assumed that trial_resol_width=800, trial_resol_height=600, we checked it
+    trial_resol_width=800 #x
+    trial_resol_height=600 #y
+    assert (df_fix.x.apply(max)>=trial_resol_width).sum() == 0
+    assert (df_fix.y.apply(max)>=trial_resol_height).sum() == 0
+    
     #print(fold_subj)
     if flag==-1:
         # subject has no fixations
@@ -88,7 +94,7 @@ def calculate_metric_subject(df_et,
     elif metric =='CC':
         score = calculate_CC_apply(df_fix, saliency)
     elif metric=='NSS':
-        score = calculate_NSS(df_fix, saliency, sal_mean, sal_std, frame_dur)
+        score = calculate_NSS(df_fix, saliency, sal_mean, sal_std, frame_dur, trial_resol_width=800, trial_resol_height=600)
     else:
         print('Metric not implemented')
         return None
@@ -137,6 +143,7 @@ def calculate_metric_dataset(data_path,
     for i in range(saliency.shape[-1]):
         sal_std[i] = saliency[:,:,i].std()
     
+    print('Warning: the data is assumed to be in the following resolution: trial_resol_width=800, trial_resol_height=600')
     # itereate over subjects
     datadir = sorted(os.listdir(data_path))
     with tqdm(len(datadir)) as pbar:
@@ -237,11 +244,11 @@ if __name__=="__main__":
     df_nss_exploded = explode(df_nss_aux, ['FIX_idx','NSS']).reset_index(drop=True)
     
     # save results
-    df_nss_exploded.drop(columns=['FLAG']).to_csv(os.path.join(results_path, vid_codes[VIDEO], 
-                                                                        f'results_nss_{SALIENCY}.csv'), index=False)
+    #df_nss_exploded.drop(columns=['FLAG']).to_csv(os.path.join(results_path, vid_codes[VIDEO], 
+    #                                                                    f'results_nss_{SALIENCY}.csv'), index=False)
 
     # dump debug
-    with open(os.path.join(results_path, vid_codes[VIDEO], f'dump_nss_{SALIENCY}.json'), 'w') as jf:
-        json.dump(results_nss[1], jf)
+    #with open(os.path.join(results_path, vid_codes[VIDEO], f'dump_nss_{SALIENCY}.json'), 'w') as jf:
+    #    json.dump(results_nss[1], jf)
         
-    print('Ok!')
+    print('Ok! BUT NOT SAVED')
