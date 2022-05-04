@@ -1,27 +1,36 @@
 # SaliencyADHD
 
-To calculate NSS for a video and a saliency map from notebook folder:
+This repository contains the code to calculate Normalized Scanpath Saliency (**NSS**) metric for each subject of the dataset ET-ADHD, video and saliency model. The used saliency models are ViNet, DeepGazeII (static), Finegrained (static) and Spectral (static).
+
+## NSS calculations
+
+To calculate NSS for a video and a saliency model, from the notebook folder (see calculate_nss.py for argument options):
 
 <code>
 python calculate_nss.py -V 'Present' -S 'spectral'
 </code>
+<br/><br/>
 
-Then to join the resulting dfs:
+To join all results of NSS for each saliency model:
 
 <code>
 python join_nss_df.py
-</code>
-
+</code/>
+<br/><br/>
+    
 To download saliency maps and results:
 
-LINK
+TBD
 
-Dir structs
+## Directory
+    
+This repository is linked as follow
+
 ```bash
 ├── cache
 ├── data
 │   ├── archive
-│   ├── ETFinalCutSampleEC07
+│   └── ETFinalCutSampleEC07
 │       └── ETFinalCutSample
 ├── notebooks
 │   └── scripts
