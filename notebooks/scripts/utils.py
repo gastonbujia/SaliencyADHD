@@ -1,5 +1,8 @@
+import os
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
 
 def is_sorted_descending(lista):
     flag = True
@@ -68,3 +71,19 @@ def create_timeseries_matrix(df,  nframes, skip_first = 24, metric_val='NSS', in
     df_ts = pd.concat(ts_list,axis=1)
     df_ts.columns = ids_list
     return df_ts
+
+def plot_sample_scenes(scene: int, video_name: str, images_path = os.path.join('..','..','videos_data')):
+    
+    images = []
+    images_path = os.path.join(images_path, video_name)
+    for f in os.listdir(images_path):
+        if f[-4:] == '.jpg':
+            if int(f.split('-')[-2]) == scene:
+                images.append(f)
+        
+    _, axs = plt.subplots(1, 3, figsize=(18, 10))
+    axs = axs.flatten()
+    for img_file, ax in zip(images, axs):
+        img = mpimg.imread(os.path.join(images_path,img_file))
+        ax.imshow(img)
+    plt.show()
