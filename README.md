@@ -1,18 +1,18 @@
 # SaliencyADHD
 
-To calculate NSS for a video and a saliency map from notebook folder:
+This repository contains the code to calculate Normalized Scanpath Saliency metric for each subject of the dataset ET-ADHD and for a video.
+
+To calculate NSS for a video and a saliency model, from the notebook folder:
 
 <code>
 python calculate_nss.py -V 'Present' -S 'spectral'
 </code>
 
-
-Then to join the resulting dfs:
+To join all results of NSS for each saliency model:
 
 <code>
 python join_nss_df.py
-</code>
-
+</code/>
 
 To download saliency maps and results:
 
