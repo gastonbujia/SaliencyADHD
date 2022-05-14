@@ -48,11 +48,19 @@ H3: Children with ADHD show lower coherence to NSS on ViNet and than to FineGrai
 
 ```{r load, include=FALSE}
 video <- "WK"
-tablesPath <- '/Volumes/methlab/Students/Sabine Dziemian/Eye Movements in ADHD/Data/Tables/';
+#tablesPath <- '/Volumes/methlab/Students/Sabine Dziemian/Eye Movements in ADHD/Data/Tables/';
+#tablesPath <- '/H/';
 
+tablesPath = '/hdd/ReposPesados/SaliencyADHD/notebooks/R/';
+setwd(tablesPath)
 # averaged NSS
-DAVG <- readDataTable(tablesPath, paste(video, '/FinalTableH3b', video , '.csv', sep=""))
-DAVG <- removeOutliers(DAVG, video)
+#DAVG <- readDataTable(tablesPath, paste(video, '/FinalTableH3b', video , '.csv', sep=""))
+
+tableFile = '/FinalTableH3b';
+DAVG <- readDataTable(tablesPath, paste(tableFile, video , '.csv', sep=""))
+
+#Por ahora trabajo con los putliers incluidos
+#DAVG <- removeOutliers(DAVG, video)
 DAVG <- DAVG[DAVG$ADHDCategory != "OtherDx", ]
 DAVG <- DAVG[DAVG$ADHDCategory != "ADHD-OS", ]
 DAVG <- DAVG[DAVG$ADHDCategory != "ADHD-US", ]
@@ -135,7 +143,7 @@ summary(mvn.Tot)
 mfg.cat <- lm(DAVG$NSS_fg ~ Age + Sex + IQ + EHQ_Total + samplingRate + ADHDCategory, data=DAVG, na.action = na.omit) 
 summary(mfg.cat)
 confint(mfg.cat)
-calculateCohensF2(DAVG, "FG")
+#calculateCohensF2(DAVG, "FG")
 vif(mfg.cat)
 plot(mfg.cat)
 
@@ -143,7 +151,7 @@ plot(mfg.cat)
 mvn.cat <- lm(DAVG$NSS_vn ~ Age + Sex + IQ + EHQ_Total + samplingRate + ADHDCategory, data=DAVG, na.action = na.omit) 
 summary(mvn.cat)
 confint(mvn.cat)
-calculateCohensF2(DAVG, "VN")
+#calculateCohensF2(DAVG, "VN")
 vif(mvn.cat)
 plot(mvn.cat)
 
@@ -168,7 +176,7 @@ vif(m.cat)
 check_collinearity(m.cat)
 summary(m.cat)
 confint(m.cat)
-calculateCohensF2InInteraction(DF)
+#calculateCohensF2InInteraction(DF)
 ```
 
 ## Additional Confirmatory Analysis
