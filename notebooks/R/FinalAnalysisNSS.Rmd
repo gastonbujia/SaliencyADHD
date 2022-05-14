@@ -1,0 +1,279 @@
+---
+title: "FinalAnalysisNSS"
+author: "Sabine Dziemian"
+date: "3/9/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+objects()
+rm(list=ls())
+options(warn=-1)
+
+wd <- getwd()
+source('/hdd/ReposPesados/SaliencyADHD/notebooks/R/readDataTable.R')
+source('/hdd/ReposPesados/SaliencyADHD/notebooks/R/removeOutliers.R')
+source('/hdd/ReposPesados/SaliencyADHD/notebooks/R/getOutlierList.R')
+#source(paste(wd, 'calculateCohensF2.R', sep = ""))
+#source(paste(wd, 'calculateCohensF2InInteraction.R', sep = ""))
+```
+
+```{r lib, include=FALSE}
+library(lme4)
+library(car)
+library(knitr)
+library(dplyr)
+library(ggplot2)
+#library(ggpmisc)
+library(ggsignif)
+library(stringr)
+library(data.table)
+library(fitdistrplus)
+library(corrplot)
+
+library(performance)
+library(lmerTest)
+#library(JWileymisc)
+#library(multilevelTools)
+```
+
+# Hypotheses
+
+H1: Overall NSS on ViNet is larger than on FineGrained regardless of group.
+
+H2: Children with ADHD have lower NSS on FineGrained and lower NSS on ViNet than controls. 
+
+H3: Children with ADHD show lower coherence to NSS on ViNet and than to FineGrained compared to controls.
+
+```{r load, include=FALSE}
+video <- "WK"
+tablesPath <- '/Volumes/methlab/Students/Sabine Dziemian/Eye Movements in ADHD/Data/Tables/';
+
+# averaged NSS
+DAVG <- readDataTable(tablesPath, paste(video, '/FinalTableH3b', video , '.csv', sep=""))
+DAVG <- removeOutliers(DAVG, video)
+DAVG <- DAVG[DAVG$ADHDCategory != "OtherDx", ]
+DAVG <- DAVG[DAVG$ADHDCategory != "ADHD-OS", ]
+DAVG <- DAVG[DAVG$ADHDCategory != "ADHD-US", ]
+DAVG <- DAVG[DAVG$ADHDCategory != "ADHD-HI", ]
+
+DAVG$ADHDCategory <- droplevels(DAVG$ADHDCategory)
+DAVG$ADHDCategory <- relevel(DAVG$ADHDCategory, ref = "NoADHD")
+
+DAVG$ID <- as.factor(DAVG$ID)
+
+D.fg <- DAVG
+D.fg <- D.fg[ , !(names(D.fg) %in% c("NSS_vn"))]
+names(D.fg)[names(D.fg) == 'NSS_fg'] <- 'NSS'
+D.fg$SemLevel <- 0
+
+D.vn <- DAVG
+D.vn <- D.vn[ , !(names(D.vn) %in% c("NSS_fg"))]
+names(D.vn)[names(D.vn) == 'NSS_vn'] <- 'NSS'
+D.vn$SemLevel <- 1 
+
+DF <- rbind(D.fg, D.vn)
+DF$ADHDCategory <- as.factor(DF$ADHDCategory)
+DF$SemLevel <- as.factor(DF$SemLevel)
+```
+
+### Correlation of NSS Values
+```{r corr, echo=FALSE, fig.width=4, fig.height=3}
+ggplot(DAVG, aes(x = NSS_fg, y = NSS_vn, color = SWAN_HY)) +
+  geom_point()
+
+ggplot(DAVG, aes(x = NSS_fg, y = NSS_vn, color = SWAN_IN)) +
+  geom_point()
+
+ggplot(DAVG, aes(x = NSS_fg, y = NSS_vn, color = SWAN_Total)) +
+  geom_point()
+
+ggplot(DAVG, aes(x = NSS_fg, y = NSS_vn, color = ADHDCategory)) +
+  geom_point()
+
+
+ggplot(DAVG, aes(x=NSS_fg, fill=ADHDCategory))+  
+ geom_density(alpha=.2)+
+ xlab("NSS Score (Finegrained)")+
+ ylab("Frequency")+
+ scale_x_continuous(n.breaks = 6)+ theme_bw() + 
+ theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"), axis.title = element_text(size = 16), axis.text = element_text(size = 16), legend.text = element_text(size = 16), legend.title = element_text(size = 16)) +
+ scale_fill_discrete(name="Group", breaks=c("NoADHD", "ADHD-C", "ADHD-IN"), labels=c("Controls", "ADHD-C", "ADHD-IN"))
+
+ggplot(DAVG, aes(x=NSS_vn, fill=ADHDCategory))+  
+ geom_density(alpha=.2)+
+ xlab("NSS Score (ViNet)")+
+ ylab("Frequency")+
+ scale_x_continuous(n.breaks = 6)+ theme_bw() +
+ theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"), axis.title = element_text(size = 16), axis.text = element_text(size = 16), legend.text = element_text(size = 16), legend.title = element_text(size = 16)) +
+ scale_fill_discrete(name="Group", breaks=c("NoADHD", "ADHD-C", "ADHD-IN"), labels=c("Controls", "ADHD-C", "ADHD-IN"))
+```
+
+
+
+### Preliminary analysis of both NSS in isolation
+```{r Q2avg, echo=FALSE, fig.width=4, fig.height=3}
+mfg.HY <- lm(DAVG$NSS_fg ~ Age + Sex + IQ + EHQ_Total + samplingRate + SWAN_HY, data=DAVG, na.action = na.omit)
+summary(mfg.HY)
+
+mvn.HY <- lm(DAVG$NSS_vn ~ Age + Sex + IQ + EHQ_Total + samplingRate + SWAN_HY, data=DAVG, na.action = na.omit)
+summary(mvn.HY)
+
+mfg.IN <- lm(DAVG$NSS_fg ~ Age + Sex + IQ + EHQ_Total + samplingRate + SWAN_IN, data=DAVG, na.action = na.omit)
+summary(mfg.IN)
+
+mvn.IN <- lm(DAVG$NSS_vn ~ Age + Sex + IQ + EHQ_Total + samplingRate + SWAN_IN, data=DAVG, na.action = na.omit)
+summary(mvn.IN)
+
+mfg.Tot <- lm(DAVG$NSS_fg ~ Age + Sex + IQ + EHQ_Total + samplingRate + SWAN_Total, data=DAVG, na.action = na.omit)
+summary(mfg.Tot)
+
+mvn.Tot <- lm(DAVG$NSS_vn ~ Age + Sex + IQ + EHQ_Total + samplingRate + SWAN_Total, data=DAVG, na.action = na.omit)
+summary(mvn.Tot)
+
+mfg.cat <- lm(DAVG$NSS_fg ~ Age + Sex + IQ + EHQ_Total + samplingRate + ADHDCategory, data=DAVG, na.action = na.omit) 
+summary(mfg.cat)
+confint(mfg.cat)
+calculateCohensF2(DAVG, "FG")
+vif(mfg.cat)
+plot(mfg.cat)
+
+
+mvn.cat <- lm(DAVG$NSS_vn ~ Age + Sex + IQ + EHQ_Total + samplingRate + ADHDCategory, data=DAVG, na.action = na.omit) 
+summary(mvn.cat)
+confint(mvn.cat)
+calculateCohensF2(DAVG, "VN")
+vif(mvn.cat)
+plot(mvn.cat)
+
+ggplot(DAVG, aes(x=ADHDCategory, y=NSS_fg, col=ADHDCategory))+
+  geom_boxplot()
+
+ggplot(DAVG, aes(x=ADHDCategory, y=NSS_vn, col=ADHDCategory))+
+  geom_boxplot()
+```
+
+## Main Analysis
+
+#### Model Definition
+
+NSS ~ Age + Gender + IQ + Handedness + Sampling Rate + SWAN * Semantic Level + (1|ID)
+
+```{r modelQ4avgHY}
+m.cat <- lmer(NSS ~ Age + Sex + IQ + EHQ_Total + samplingRate + ADHDCategory * SemLevel + (1|ID), data=DF, na.action = na.omit) 
+
+# choose model m2.cat
+vif(m.cat)
+check_collinearity(m.cat)
+summary(m.cat)
+confint(m.cat)
+calculateCohensF2InInteraction(DF)
+```
+
+## Additional Confirmatory Analysis
+
+### Bootstrap with z-transformed NSS 
+```{r boot}
+
+iterations <- 1000
+
+b.fg <- rep(NA, iterations)
+b.vn <- rep(NA, iterations)
+
+for (i in 1:iterations){
+  D.frac <- DAVG %>% sample_frac(.8)
+
+  m.fg <- lm(D.frac$NSS_fg ~ Age + Sex + IQ + EHQ_Total + samplingRate + ADHDCategory, data=D.frac, na.action = na.omit) 
+  m.vn <- lm(D.frac$NSS_vn ~ Age + Sex + IQ + EHQ_Total + samplingRate + ADHDCategory, data=D.frac, na.action = na.omit) 
+  
+  b.fg[i] <- m.fg$coefficients[8]
+  b.vn[i] <- m.vn$coefficients[8]
+}
+
+
+df <- data.frame(
+  Map=factor(rep(c("Finegrained", "ViNet"), each=1000)),
+  beta= c(b.fg, b.vn))
+
+ggplot(df, aes(x=beta, fill=Map, color=Map)) +
+  geom_histogram(alpha=0.5, position="identity")+
+  xlab("Estimate")+ ylab("Count")+
+  theme_bw()+
+  theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
+
+
+hist(b.vn)
+hist(b.fg)
+summary(b.vn)
+summary(b.fg)
+
+t.test(b.vn, b.fg)
+
+t.test(b.vn, b.fg, alternative = c("less"), paired = FALSE, var.equal = TRUE)
+wilcox.test(b.vn, b.fg, alternative = c("less"), paired = FALSE, var.equal = FALSE)
+```
+
+
+
+### Add-on check for collinearity in interaction model
+```{r boot}
+
+iterations <- 1000
+
+b.adhdc <- rep(NA, iterations)
+b.adhdin <- rep(NA, iterations)
+b.sem <- rep(NA, iterations)
+b.intc <- rep(NA, iterations)
+b.intin <- rep(NA, iterations)
+
+bo.adhdc <- rep(NA, iterations)
+bo.adhdin <- rep(NA, iterations)
+bo.sem <- rep(NA, iterations)
+
+for (i in 1:iterations){
+  D.frac <- DF %>% sample_frac(.8)
+  
+  # with interaction
+  m <- summary(lmer(D.frac$NSS ~ Age + Sex + IQ + EHQ_Total + samplingRate + ADHDCategory * SemLevel + (1|ID), data=D.frac, na.action = na.omit))
+
+  b.adhdc[i] <- m$coefficients[8]
+  b.adhdin[i] <- m$coefficients[9]
+  b.sem[i] <- m$coefficients[10]
+  b.intc[i] <- m$coefficients[11]
+  b.intin[i] <- m$coefficients[12]
+  
+  # without interaction
+  mo <- summary(lmer(D.frac$NSS ~ Age + Sex + IQ + EHQ_Total + samplingRate + ADHDCategory + SemLevel + (1|ID), data=D.frac, na.action = na.omit))
+
+  bo.adhdc[i] <- mo$coefficients[8]
+  bo.adhdin[i] <- mo$coefficients[9]
+  bo.sem[i] <- mo$coefficients[10]
+}
+
+# with interaction
+hist(b.adhdc)
+hist(b.adhdin)
+hist(b.sem)
+hist(b.intc)
+hist(b.intin)
+
+df <- data.frame(b.adhdc, b.adhdin, b.sem, b.intc, b.intin)
+pairs(df)
+
+# without interaction
+hist(bo.adhdc)
+hist(bo.adhdin)
+hist(bo.sem)
+
+dfo <- data.frame(b.adhdc, b.adhdin, b.sem, b.intc, b.intin)
+pairs(dfo)
+```
+
+
+
+
+
+
+
+
