@@ -1,6 +1,6 @@
 getOutlierList <- function(vid){
   
-  tablesPath = '/Volumes/methlab/Students/Sabine Dziemian/Eye Movements in ADHD/Data/Tables/';
+  tablesPath = '/hdd/ReposPesados/SaliencyADHD/notebooks/';
   D <- readDataTable(tablesPath, paste(vid, '/FinalTableH1', vid, '.csv', sep=""))
 
   thresh <- 3

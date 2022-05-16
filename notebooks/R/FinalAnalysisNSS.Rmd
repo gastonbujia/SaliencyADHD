@@ -42,7 +42,7 @@ library(lmerTest)
 
 H1: Overall NSS on ViNet is larger than on FineGrained regardless of group.
 
-H2: Children with ADHD have lower NSS on FineGrained and lower NSS on ViNet than controls. 
+H2: Children with ADHD have lower NSS on FineGrained and lower NSS on ViNet than controls.
 
 H3: Children with ADHD show lower coherence to NSS on ViNet and than to FineGrained compared to controls.
 
@@ -52,11 +52,13 @@ video <- "WK"
 #tablesPath <- '/H/';
 
 tablesPath = '/hdd/ReposPesados/SaliencyADHD/notebooks/R/';
+tablesPath = '/hdd/ReposPesados/SaliencyADHD/notebooks/results/';
 setwd(tablesPath)
 # averaged NSS
 #DAVG <- readDataTable(tablesPath, paste(video, '/FinalTableH3b', video , '.csv', sep=""))
 
 tableFile = '/FinalTableH3b';
+tableFile = '/table_Diary_500'
 DAVG <- readDataTable(tablesPath, paste(tableFile, video , '.csv', sep=""))
 
 #Por ahora trabajo con los putliers incluidos
@@ -87,6 +89,7 @@ DF$SemLevel <- as.factor(DF$SemLevel)
 ```
 
 ### Correlation of NSS Values
+
 ```{r corr, echo=FALSE, fig.width=4, fig.height=3}
 ggplot(DAVG, aes(x = NSS_fg, y = NSS_vn, color = SWAN_HY)) +
   geom_point()
@@ -118,9 +121,8 @@ ggplot(DAVG, aes(x=NSS_vn, fill=ADHDCategory))+
  scale_fill_discrete(name="Group", breaks=c("NoADHD", "ADHD-C", "ADHD-IN"), labels=c("Controls", "ADHD-C", "ADHD-IN"))
 ```
 
-
-
 ### Preliminary analysis of both NSS in isolation
+
 ```{r Q2avg, echo=FALSE, fig.width=4, fig.height=3}
 mfg.HY <- lm(DAVG$NSS_fg ~ Age + Sex + IQ + EHQ_Total + samplingRate + SWAN_HY, data=DAVG, na.action = na.omit)
 summary(mfg.HY)
@@ -166,7 +168,7 @@ ggplot(DAVG, aes(x=ADHDCategory, y=NSS_vn, col=ADHDCategory))+
 
 #### Model Definition
 
-NSS ~ Age + Gender + IQ + Handedness + Sampling Rate + SWAN * Semantic Level + (1|ID)
+NSS \~ Age + Gender + IQ + Handedness + Sampling Rate + SWAN \* Semantic Level + (1\|ID)
 
 ```{r modelQ4avgHY}
 m.cat <- lmer(NSS ~ Age + Sex + IQ + EHQ_Total + samplingRate + ADHDCategory * SemLevel + (1|ID), data=DF, na.action = na.omit) 
@@ -181,7 +183,8 @@ confint(m.cat)
 
 ## Additional Confirmatory Analysis
 
-### Bootstrap with z-transformed NSS 
+### Bootstrap with z-transformed NSS
+
 ```{r boot}
 
 iterations <- 1000
@@ -222,9 +225,8 @@ t.test(b.vn, b.fg, alternative = c("less"), paired = FALSE, var.equal = TRUE)
 wilcox.test(b.vn, b.fg, alternative = c("less"), paired = FALSE, var.equal = FALSE)
 ```
 
-
-
 ### Add-on check for collinearity in interaction model
+
 ```{r boot}
 
 iterations <- 1000
@@ -277,11 +279,3 @@ hist(bo.sem)
 dfo <- data.frame(b.adhdc, b.adhdin, b.sem, b.intc, b.intin)
 pairs(dfo)
 ```
-
-
-
-
-
-
-
-
