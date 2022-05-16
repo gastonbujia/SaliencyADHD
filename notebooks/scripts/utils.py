@@ -87,3 +87,4 @@ def plot_sample_scenes(scene: int, video_name: str, images_path = os.path.join('
         img = mpimg.imread(os.path.join(images_path,img_file))
         ax.imshow(img)
     plt.show()
+    
