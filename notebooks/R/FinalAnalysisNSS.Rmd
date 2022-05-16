@@ -58,8 +58,8 @@ setwd(tablesPath)
 #DAVG <- readDataTable(tablesPath, paste(video, '/FinalTableH3b', video , '.csv', sep=""))
 
 tableFile = '/FinalTableH3b';
-tableFile = '/table_Diary_500'
-DAVG <- readDataTable(tablesPath, paste(tableFile, video , '.csv', sep=""))
+tableFile = 'WK/table_Diary_1000'
+DAVG <- readDataTable(tablesPath, paste(tableFile, '.csv', sep=""))
 
 #Por ahora trabajo con los putliers incluidos
 #DAVG <- removeOutliers(DAVG, video)
@@ -175,10 +175,14 @@ m.cat <- lmer(NSS ~ Age + Sex + IQ + EHQ_Total + samplingRate + ADHDCategory * S
 
 # choose model m2.cat
 vif(m.cat)
-check_collinearity(m.cat)
+#check_collinearity(m.cat)
 summary(m.cat)
-confint(m.cat)
+#confint(m.cat)
 #calculateCohensF2InInteraction(DF)
+
+# para guardar lo que puedo hacer es:
+aux <- summary(m.cat)$coefficients
+write.csv(aux, paste(tablesPath, "output.csv" ,sep=""))
 ```
 
 ## Additional Confirmatory Analysis

@@ -3,12 +3,20 @@ title: "R Notebook"
 output: html_notebook
 ---
 
-This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code.
-
-Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*.
-
-```{r}
-plot(cars)
+```{r lib, include=FALSE}
+library(lme4)
+library(car)
+library(knitr)
+library(dplyr)
+library(ggplot2)
+#library(ggpmisc)
+library(ggsignif)
+library(stringr)
+library(data.table)
+library(fitdistrplus)
+library(corrplot)
+library(performance)
+library(lmerTest)
 ```
 
 Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
@@ -16,3 +24,37 @@ Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by press
 When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
 
 The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+
+```{r}
+# load paths
+resultsPath = '/hdd/ReposPesados/SaliencyADHD/notebooks/results/WK/'
+tableName = 'table_Diary_'
+# for each table file run an lmer model and save summary
+csv_files = list.files(resultsPath, pattern = ".csv") 
+for (file in csv_files){
+    DAVG <- readDataTable(tablesPath, paste(tableFile, '.csv', sep=""))
+    #Por ahora trabajo con los putliers incluidos
+    #DAVG <- removeOutliers(DAVG, video)
+    DAVG <- DAVG[DAVG$ADHDCategory != "OtherDx", ]
+    DAVG <- DAVG[DAVG$ADHDCategory != "ADHD-OS", ]
+    DAVG <- DAVG[DAVG$ADHDCategory != "ADHD-US", ]
+    DAVG <- DAVG[DAVG$ADHDCategory != "ADHD-HI", ]
+    DAVG$ADHDCategory <- droplevels(DAVG$ADHDCategory)
+    DAVG$ADHDCategory <- relevel(DAVG$ADHDCategory, ref = "NoADHD")
+    DAVG$ID <- as.factor(DAVG$ID)
+    D.fg <- DAVG
+    D.fg <- D.fg[ , !(names(D.fg) %in% c("NSS_vn"))]
+    names(D.fg)[names(D.fg) == 'NSS_fg'] <- 'NSS'
+    D.fg$SemLevel <- 0
+    D.vn <- DAVG
+    D.vn <- D.vn[ , !(names(D.vn) %in% c("NSS_fg"))]
+    names(D.vn)[names(D.vn) == 'NSS_vn'] <- 'NSS'
+    D.vn$SemLevel <- 1 
+    DF <- rbind(D.fg, D.vn)
+    DF$ADHDCategory <- as.factor(DF$ADHDCategory)
+    DF$SemLevel <- as.factor(DF$SemLevel)
+    m.cat <- lmer(NSS ~ Age + Sex + IQ + EHQ_Total + samplingRate + ADHDCategory * SemLevel + (1|ID), data=DF, na.action = na.omit)
+    aux <- summary(m.cat)$coefficients
+    write.csv(aux, paste(resultsPath, 'frame_models/', file ,sep=""))
+}
+```
