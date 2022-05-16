@@ -88,3 +88,14 @@ def plot_sample_scenes(scene: int, video_name: str, images_path = os.path.join('
         ax.imshow(img)
     plt.show()
     
+def plot_timeseries(timeseries, video_full_name, metric_name = 'NSS'):
+    _, ax = plt.subplots(figsize=(15,8))
+    m = timeseries.mean(axis=1)
+    sm = timeseries.std(axis=1)
+    plt.plot(m)
+    plt.axhline(y = m.mean(), color = 'r', linestyle = '-.', alpha=0.7)
+    plt.fill_between(m.index, m - 1 * sm, m + 1 * sm, alpha=0.2);
+    ax.set_ylabel(metric_name, fontsize=15)
+    #ax.legend('Frame', fontsize=14);
+    plt.title(video_full_name, fontsize=18);
+    return None
