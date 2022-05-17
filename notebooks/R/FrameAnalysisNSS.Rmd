@@ -32,7 +32,7 @@ tableName = 'table_Diary_'
 # for each table file run an lmer model and save summary
 csv_files = list.files(resultsPath, pattern = ".csv") 
 for (file in csv_files){
-    DAVG <- readDataTable(tablesPath, paste(tableFile, '.csv', sep=""))
+    DAVG <- readDataTable(resultsPath, paste('frame_tables/',file,sep=""))
     #Por ahora trabajo con los putliers incluidos
     #DAVG <- removeOutliers(DAVG, video)
     DAVG <- DAVG[DAVG$ADHDCategory != "OtherDx", ]
