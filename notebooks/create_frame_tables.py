@@ -6,11 +6,12 @@ from scripts.data import *
 
 if __name__=='__main__':
     VIDEO = 'WK'
+    VIDEO_NAME = 'Diary'
     results_path = '../results/'
     file = 'results_nss_diary.csv'
-    VIDEO_NAME = 'Diary'
     NFRAMES = 2817
-
+    SKIP_FRAMES = 5
+    
     # load videos data
     videos_data = load_video_data()
 
@@ -40,15 +41,21 @@ if __name__=='__main__':
     if not os.path.exists(results_dir): os.mkdir(results_dir)
     video_results_dir = os.path.join(results_dir, VIDEO)
     if not os.path.exists(video_results_dir): os.mkdir(video_results_dir)
+    video_results_dir = os.path.join(video_results_dir, 'frame_tables')
+    if not os.path.exists(video_results_dir): os.mkdir(video_results_dir)
     
     # filter timeseries table (subset of frames)
-    for fr in range(0, NFRAMES, 5):
+    for fr in range(0, NFRAMES, SKIP):
         # exclude tables of unneded frames fr.isin(frame_list)
         if True:
             # format data for R
             aux = df_r.drop(columns=['NSS_vn', 'NSS_fg'])
             #print(aux.shape)
             vn_col = ts_vn.T.iloc[:,fr].rename('NSS_vn')
+            if vn_col.isna().any():
+                # drop cases if any NaN Value
+                print('NaN in VN column! Frame: {}'.format(fr))
+                continue
             aux = pd.merge(aux, vn_col, left_on='ID', right_index=True, how='inner')
             # TODO: perdi unos 60 sujetos seguramente en la funcion de create timeseries matrix
             #print(aux.shape)
