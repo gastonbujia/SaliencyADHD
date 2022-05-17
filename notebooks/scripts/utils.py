@@ -45,7 +45,7 @@ def explode(frame, columns):
     }).assign(**{col: np.concatenate(frame[col].values)
                  for col in columns}).loc[:, frame.columns]
 
-
+# TIMESERIES TOOLS
 def get_timeseries(df, sid, ind ='FRAME_idx',val='NSS'):
     # ind is 'FIX_ts' or 'FRAME_id'
     # sid is subject's id
@@ -72,6 +72,36 @@ def create_timeseries_matrix(df,  nframes, skip_first = 24, metric_val='NSS', in
     df_ts.columns = ids_list
     return df_ts
 
+def plot_timeseries(timeseries, video_full_name, metric_name = 'NSS'):
+    _, ax = plt.subplots(figsize=(15,8))
+    m = timeseries.mean(axis=1)
+    sm = timeseries.std(axis=1)
+    plt.plot(m)
+    plt.axhline(y = m.mean(), color = 'r', linestyle = '-.', alpha=0.7)
+    plt.fill_between(m.index, m - 1 * sm, m + 1 * sm, alpha=0.2);
+    ax.set_ylabel(metric_name, fontsize=15)
+    #ax.legend('Frame', fontsize=14);
+    plt.title(video_full_name, fontsize=18);
+    return None
+
+# SCENES TOOLS
+def calc_scenes(df, df_scenes):
+    """_summary_
+
+    Args:
+        df (_type_): _description_
+        df_scenes (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    scenes_vals = [j for j in range(df_scenes.shape[0]) for _ in range(df_scenes.iloc[j]['Start Frame'], df_scenes.iloc[j]['End Frame'])]
+    scenes_fram = range(df_scenes.iloc[-1]['End Frame'])
+    assert len(scenes_vals) == len(scenes_fram)
+    scenes_dict = dict(zip(scenes_fram, scenes_vals))
+    new_col = df['FRAME_idx'].map(scenes_dict)
+    return new_col
+
 def plot_sample_scenes(scene: int, video_name: str, images_path = os.path.join('..','..','videos_data')):
     
     images = []
@@ -87,15 +117,3 @@ def plot_sample_scenes(scene: int, video_name: str, images_path = os.path.join('
         img = mpimg.imread(os.path.join(images_path,img_file))
         ax.imshow(img)
     plt.show()
-    
-def plot_timeseries(timeseries, video_full_name, metric_name = 'NSS'):
-    _, ax = plt.subplots(figsize=(15,8))
-    m = timeseries.mean(axis=1)
-    sm = timeseries.std(axis=1)
-    plt.plot(m)
-    plt.axhline(y = m.mean(), color = 'r', linestyle = '-.', alpha=0.7)
-    plt.fill_between(m.index, m - 1 * sm, m + 1 * sm, alpha=0.2);
-    ax.set_ylabel(metric_name, fontsize=15)
-    #ax.legend('Frame', fontsize=14);
-    plt.title(video_full_name, fontsize=18);
-    return None
