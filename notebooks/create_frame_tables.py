@@ -1,16 +1,22 @@
 import os
+import argparse
 import numpy as np
 import pandas as pd
 from scripts.utils import *
 from scripts.data import *
 
 if __name__=='__main__':
+    
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-S','--skip',default=5, type=int, help='create table every S frames')
+    args = parser.parse_args()
+    
     VIDEO = 'WK'
     VIDEO_NAME = 'Diary'
     results_path = '../results/'
     file = 'results_nss_diary.csv'
     NFRAMES = 2817
-    SKIP_FRAMES = 5
+    SKIP_FRAMES = args.skip
     
     # load videos data
     videos_data = load_video_data()
