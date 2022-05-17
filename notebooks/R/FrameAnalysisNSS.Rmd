@@ -30,7 +30,7 @@ The preview shows you a rendered HTML copy of the contents of the editor. Conseq
 resultsPath = '/hdd/ReposPesados/SaliencyADHD/notebooks/results/WK/'
 tableName = 'table_Diary_'
 # for each table file run an lmer model and save summary
-csv_files = list.files(resultsPath, pattern = ".csv") 
+csv_files = list.files(paste(resultsPath,'frame_tables/',sep=""), pattern = ".csv") 
 for (file in csv_files){
     DAVG <- readDataTable(resultsPath, paste('frame_tables/',file,sep=""))
     #Por ahora trabajo con los putliers incluidos
@@ -55,6 +55,7 @@ for (file in csv_files){
     DF$SemLevel <- as.factor(DF$SemLevel)
     m.cat <- lmer(NSS ~ Age + Sex + IQ + EHQ_Total + samplingRate + ADHDCategory * SemLevel + (1|ID), data=DF, na.action = na.omit)
     aux <- summary(m.cat)$coefficients
+    summary(aux)
     write.csv(aux, paste(resultsPath, 'frame_models/', file ,sep=""))
 }
 ```

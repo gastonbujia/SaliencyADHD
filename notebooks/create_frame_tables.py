@@ -45,7 +45,7 @@ if __name__=='__main__':
     if not os.path.exists(video_results_dir): os.mkdir(video_results_dir)
     
     # filter timeseries table (subset of frames)
-    for fr in range(0, NFRAMES, SKIP):
+    for fr in range(0, NFRAMES, SKIP_FRAMES):
         # exclude tables of unneded frames fr.isin(frame_list)
         if True:
             # format data for R
