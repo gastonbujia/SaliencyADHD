@@ -59,8 +59,12 @@ for (file in csv_files){
 Calculate models at scene level for all files found in scene_tables folder
 
 ```{r}
-{
-  
+# load paths
+resultsPath = '/hdd/ReposPesados/SaliencyADHD/notebooks/results/WK/'
+tableName = 'table_Diary_'
+# for each table file run an lmer model and save summary
+csv_files = list.files(paste(resultsPath,'scene_tables/',sep=""), pattern = ".csv") 
+for (file in csv_files){
     DAVG <- readDataTable(resultsPath, paste('scene_tables/',file,sep=""))
     #Por ahora trabajo con los putliers incluidos
     #DAVG <- removeOutliers(DAVG, video)
@@ -87,5 +91,4 @@ Calculate models at scene level for all files found in scene_tables folder
     summary(aux)
     write.csv(aux, paste(resultsPath, 'scene_models/', file ,sep=""))
 }
-
 ```

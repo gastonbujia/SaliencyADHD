@@ -6,7 +6,9 @@ from scripts.utils import *
 from scripts.data import *
 
 if __name__=='__main__':
-    
+    """
+    This script creates the frame tables needed for the R script, both for frame level and for scene level.
+    """
     parser = argparse.ArgumentParser()
     parser.add_argument('-F','--frameskip',default=5, type=int, help='create table every F frames')
     parser.add_argument('-S','--scenes', default=False, type=bool, help='group all frames inside scene')

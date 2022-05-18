@@ -1,4 +1,5 @@
 import os
+import cv2
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -117,3 +118,27 @@ def plot_sample_scenes(scene: int, video_name: str, images_path = os.path.join('
         img = mpimg.imread(os.path.join(images_path,img_file))
         ax.imshow(img)
     plt.show()
+    
+def plot_sample_frames(framenum: int, video_name: str = 'Diary/Diary_of_a_Wimpy_Kid_Trailer.mp4',
+                       video_path = os.path.join('/hdd/ReposPesados/SaliencyADHD/videos_data')):
+    
+    video_path = os.path.join(video_path, video_name)
+    
+    def get_frame(vidurl,framenum):
+        
+        vidcap = cv2.VideoCapture(vidurl)
+        vidcap.set(cv2.CAP_PROP_POS_FRAMES, framenum)
+        _, frame = vidcap.read()
+        return frame
+    
+    images = [get_frame(video_path, framenum + i) for i in [-10,0,10]]
+    _, axs = plt.subplots(1, 3, figsize=(18, 10))
+    axs = axs.flatten()
+    for img_frame, ax in zip(images, axs):
+        #img = mpimg.imread(os.path.join(video_path,img_file))
+        img = img_frame
+        ax.imshow(img)
+    
+    plt.show()
+    
+    #return images
