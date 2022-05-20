@@ -63,7 +63,7 @@ if __name__=='__main__':
                                    header=1)
         saliency_models = ['NSS_vn', 'NSS_fg']
         scenes_wk = calc_scenes(df, scenes_data)
-        df['Scenes'] = scenes_wk
+        df['Scenes'] = scenes_wk + 1 # scenes index starts at 1
         # TODO: agregar que pueda guardar el error estandar de la media de las escenas
         df_scene_vals = df.groupby(['ID', 'Scenes'])[saliency_models].mean().reset_index(level=[1])
         for scene in df_scene_vals.Scenes.unique():
