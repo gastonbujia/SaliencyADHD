@@ -106,7 +106,7 @@ def calc_scenes(df, df_scenes):
 def plot_sample_scenes(scene: int, video_name: str, images_path = os.path.join('..','..','videos_data')):
     
     images = []
-    images_path = os.path.join(images_path, video_name)
+    images_path = os.path.join(images_path, video_name, 'scenes')
     for f in os.listdir(images_path):
         if f[-4:] == '.jpg':
             if int(f.split('-')[-2]) == scene:
@@ -135,10 +135,6 @@ def plot_sample_frames(framenum: int, video_name: str = 'Diary/Diary_of_a_Wimpy_
     _, axs = plt.subplots(1, 3, figsize=(18, 10))
     axs = axs.flatten()
     for img_frame, ax in zip(images, axs):
-        #img = mpimg.imread(os.path.join(video_path,img_file))
-        img = img_frame
-        ax.imshow(img)
+        ax.imshow(img_frame)
     
     plt.show()
-    
-    #return images

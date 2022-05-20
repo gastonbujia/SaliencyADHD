@@ -59,7 +59,7 @@ if __name__=='__main__':
         
         # add scenes to dataframe
         # TODO: cambiar path para que sea una entrada de la linea de comandos
-        scenes_data =  pd.read_csv('/hdd/ReposPesados/SaliencyADHD/videos_data/Diary/Diary_of_a_Wimpy_Kid_Trailer-Scenes.csv',
+        scenes_data =  pd.read_csv('/hdd/ReposPesados/SaliencyADHD/videos_data/Diary/scenes/Diary_of_a_Wimpy_Kid_Trailer-Scenes.csv',
                                    header=1)
         saliency_models = ['NSS_vn', 'NSS_fg']
         scenes_wk = calc_scenes(df, scenes_data)
