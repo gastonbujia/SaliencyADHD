@@ -52,16 +52,15 @@ video <- "WK"
 #tablesPath <- '/H/';
 
 tablesPath = '/hdd/ReposPesados/SaliencyADHD/notebooks/R/';
-#tablesPath = '/hdd/ReposPesados/SaliencyADHD/notebooks/results/';
 setwd(tablesPath)
 # averaged NSS
 #DAVG <- readDataTable(tablesPath, paste(video, '/FinalTableH3b', video , '.csv', sep=""))
 
-tableFile = 'FinalTableH3bWK';
+tableFile = 'tables/FinalTableH3bWK';
 DAVG <- readDataTable(tablesPath, paste(tableFile, '.csv', sep=""))
 
 #Por ahora trabajo con los putliers incluidos
-#DAVG <- removeOutliers(DAVG, video)
+DAVG <- removeOutliers(DAVG, video)
 DAVG <- DAVG[DAVG$ADHDCategory != "OtherDx", ]
 DAVG <- DAVG[DAVG$ADHDCategory != "ADHD-OS", ]
 DAVG <- DAVG[DAVG$ADHDCategory != "ADHD-US", ]

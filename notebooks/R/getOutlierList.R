@@ -1,7 +1,7 @@
 getOutlierList <- function(vid){
   
-  tablesPath = '/hdd/ReposPesados/SaliencyADHD/notebooks/';
-  D <- readDataTable(tablesPath, paste(vid, '/FinalTableH1', vid, '.csv', sep=""))
+  tabPath = '/hdd/ReposPesados/SaliencyADHD/notebooks/R/tables';
+  D <- readDataTable(tabPath, paste('/FinalTableH1', vid, '.csv', sep=""))
   
   thresh <- 3
   

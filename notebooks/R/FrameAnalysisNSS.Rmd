@@ -25,12 +25,14 @@ Calculate models at frame level for all files found in frame_tables folder
 # load paths
 resultsPath = '/hdd/ReposPesados/SaliencyADHD/notebooks/results/WK/'
 tableName = 'table_Diary_'
+video = 'WK'
 # for each table file run an lmer model and save summary
 csv_files = list.files(paste(resultsPath,'frame_tables/',sep=""), pattern = ".csv") 
 for (file in csv_files){
     DAVG <- readDataTable(resultsPath, paste('frame_tables/',file,sep=""))
     #Por ahora trabajo con los putliers incluidos
     #DAVG <- removeOutliers(DAVG, video)
+    DAVG <- removeOutliers(DAVG, video)
     DAVG <- DAVG[DAVG$ADHDCategory != "OtherDx", ]
     DAVG <- DAVG[DAVG$ADHDCategory != "ADHD-OS", ]
     DAVG <- DAVG[DAVG$ADHDCategory != "ADHD-US", ]
@@ -62,12 +64,14 @@ Calculate models at scene level for all files found in scene_tables folder
 # load paths
 resultsPath = '/hdd/ReposPesados/SaliencyADHD/notebooks/results/WK/'
 tableName = 'table_Diary_'
+video = 'WK'
 # for each table file run an lmer model and save summary
 csv_files = list.files(paste(resultsPath,'scene_tables/',sep=""), pattern = ".csv") 
 for (file in csv_files){
     DAVG <- readDataTable(resultsPath, paste('scene_tables/',file,sep=""))
     #Por ahora trabajo con los putliers incluidos
     #DAVG <- removeOutliers(DAVG, video)
+    DAVG <- removeOutliers(DAVG, video)
     DAVG <- DAVG[DAVG$ADHDCategory != "OtherDx", ]
     DAVG <- DAVG[DAVG$ADHDCategory != "ADHD-OS", ]
     DAVG <- DAVG[DAVG$ADHDCategory != "ADHD-US", ]

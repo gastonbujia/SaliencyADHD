@@ -29,7 +29,8 @@ if __name__=='__main__':
     df_means = df.groupby('ID')[['NSS_vn','NSS_fg']].mean()
 
     # compare both NSS files
-    df_r = pd.read_csv(os.path.join('R', 'FinalTableH3bWK.csv'),sep=';')
+    #df_r = pd.read_csv(os.path.join('R', 'FinalTableH3bWK.csv'),sep=';')
+    df_r = pd.read_csv(os.path.join('R', 'tables', 'FinalTableH3bWK.csv'),sep=';')
     df_compare = pd.merge(df_r, df_means, on='ID', how='inner')
     df_compare.head()[['ID','NSS_fg_x', 'NSS_fg_y', 'NSS_vn_x', 'NSS_vn_y']]
     
@@ -59,11 +60,17 @@ if __name__=='__main__':
         
         # add scenes to dataframe
         # TODO: cambiar path para que sea una entrada de la linea de comandos
-        scenes_data =  pd.read_csv('/hdd/ReposPesados/SaliencyADHD/videos_data/Diary/scenes/Diary_of_a_Wimpy_Kid_Trailer-Scenes.csv',
-                                   header=1)
+        #scenes_data =  pd.read_csv('/hdd/ReposPesados/SaliencyADHD/videos_data/Diary/scenes/Diary_of_a_Wimpy_Kid_Trailer-Scenes.csv',
+        #                           header=1)
+        scenes_data = pd.read_csv('/hdd/ReposPesados/SaliencyADHD/videos_data/Diary/scenes/ManualSceneCut_WK.csv', 
+                          sep=';').rename(columns={'SceneNumber': 'Scene Number','StartFrame':'Start Frame', 'EndFrame':'End Frame'})
         saliency_models = ['NSS_vn', 'NSS_fg']
         scenes_wk = calc_scenes(df, scenes_data)
-        df['Scenes'] = scenes_wk + 1 # scenes index starts at 1
+        df['Scenes'] = scenes_wk.fillna(-1).astype(int) + 1 # scenes index starts at 1
+        # NOTE: borramos los frames negros, entonces aparecen nans que representan las escenas faltantes, los tiramos
+        #df = df[~df.Scenes.isna()]
+        df = df[df.Scenes!=0]
+        print(df.shape)
         # TODO: agregar que pueda guardar el error estandar de la media de las escenas
         df_scene_vals = df.groupby(['ID', 'Scenes'])[saliency_models].mean().reset_index(level=[1])
         for scene in df_scene_vals.Scenes.unique():
