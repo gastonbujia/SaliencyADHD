@@ -24,7 +24,8 @@ if __name__=='__main__':
         overlay = cv2.applyColorMap(overlay, cv2.COLORMAP_JET)
         added_image = cv2.addWeighted(background,background_weight,overlay,overlay_weight,0)
 
-        cv2.imwrite(os.path.join(save_folder, f'extra_{vid_name}_{saliency}_{i}.jpg'.lower()), added_image)
+        cv2.imwrite(os.path.join(save_folder, f'extra_{vid_name}_{saliency}_{i:04d}.jpg'.lower()), added_image)
         i+=1
         
-    
+# para armar el video
+#ffmpeg -framerate 60 -i ./extras/extra_diary_vinet_%04d.jpg diary_vinet_overlay.mp4
