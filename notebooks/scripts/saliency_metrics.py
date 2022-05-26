@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 from scipy.stats import multivariate_normal, entropy
 
-def get_saliency_values(y,x,saliency):
+def get_saliency_values(y,x,saliency, crux = True):
     """
     Get saliency values for fixation x, y. Clarification: in the data x measures the width and y measures the height of the image,
     but the salience is a matrix for which the first coordinate (x) measures the height and the second (y) measures the width. 
@@ -25,20 +25,20 @@ def get_saliency_values(y,x,saliency):
     if x>h-1: x=h-1
     if y>w-1: y=w-1
     sal_val = float(saliency[x,y])
-    
-    if x < h-1:
-        sal_val += saliency[x+1,y]
-        c+=1
-    if x > 0:
-        sal_val += saliency[x-1,y]
-        c+=1
-    if y < w-1:
-        sal_val += saliency[x,y+1]
-        c+=1
-    if y > 0:
-        sal_val += saliency[x,y-1]    
-        c+=1
-    
+    if crux:
+        if x < h-1:
+            sal_val += saliency[x+1,y]
+            c+=1
+        if x > 0:
+            sal_val += saliency[x-1,y]
+            c+=1
+        if y < w-1:
+            sal_val += saliency[x,y+1]
+            c+=1
+        if y > 0:
+            sal_val += saliency[x,y-1]    
+            c+=1
+
     sal_val += float(saliency[x,y])
         
     return sal_val/c
@@ -103,7 +103,9 @@ def NSS(saliency, sal_mean, sal_std, xs, ys, ts, frame_dur):
         saliency_map = saliency[:,:,fr]
         mean = sal_mean[fr]
         std  = sal_std[fr]
-        value = get_saliency_values(x,y,saliency_map)
+        # TODO pasarlo a parametros
+        crux = False
+        value = get_saliency_values(x,y,saliency_map, crux=crux)
         value -= mean
         if std:
             value /= std

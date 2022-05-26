@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 from numpy.lib.format import open_memmap
+import logging
 
 from scripts.data import *
 from scripts.preprocessing import *
@@ -84,8 +85,9 @@ def calculate_metric_subject(df_et,
     # as it is assumed that trial_resol_width=800, trial_resol_height=600, we checked it
     trial_resol_width=800 #x
     trial_resol_height=600 #y
-    assert (df_fix.x.apply(max)>=trial_resol_width).sum() == 0
-    assert (df_fix.y.apply(max)>=trial_resol_height).sum() == 0
+    # TODO: check if it is correct
+    #assert (df_fix.x.apply(max)>=trial_resol_width).sum() == 0
+    #assert (df_fix.y.apply(max)>=trial_resol_height).sum() == 0
     
     #print(fold_subj)
     if flag==-1:
@@ -146,6 +148,13 @@ def calculate_metric_dataset(data_path,
     print('Warning: the data is assumed to be in the following resolution: trial_resol_width=800, trial_resol_height=600')
     # itereate over subjects
     datadir = sorted(os.listdir(data_path))
+    
+    #logf = open(".log", "w")
+    # TODO: relative path
+    logging.basicConfig(filename=f'/hdd/ReposPesados/SaliencyADHD/results/log/nss_{vid_name}.log', level=logging.DEBUG, 
+                    format='%(asctime)s %(levelname)s %(name)s %(message)s')
+    logger=logging.getLogger(__name__)
+    
     with tqdm(range(len(datadir))) as pbar:
         for fold_subj in datadir:
 
@@ -186,8 +195,9 @@ def calculate_metric_dataset(data_path,
 
                 results.append((fold_subj,  df_fix.index, score, mean_score, len(df_fix), flag, vid_name, et_file))
                 pbar.update()
-            except:
-                error_list.append(fold_subj)
+            except Exception as e:
+                error_list.append((fold_subj))
+                logger.error(e)
                 pbar.update()
                 continue
             
@@ -210,7 +220,8 @@ if __name__=="__main__":
     parser.add_argument('-sp','--salpath', default = None,type=str, help='Path to saliency models as images')
     parser.add_argument('-rp','--respath', default = None,type=str, help='Path to results folders')
     parser.add_argument('-vp','--vidpath', default = None,type=str, help='Path to VideoData file')
-    parser.add_argument('-mp','--metapath', default = None,type=str, help='Path to PhenoDataFinal file') 
+    parser.add_argument('-mp','--metapath', default = None,type=str, help='Path to PhenoDataFinal file')
+    parser.add_argument('-N', '--name', default = '',type=str, help='Name of the video')
     args = parser.parse_args()
     
     VIDEO = args.video
@@ -247,11 +258,11 @@ if __name__=="__main__":
     
     # save results
     df_nss_exploded.drop(columns=['FLAG']).to_csv(os.path.join(results_path, vid_codes[VIDEO], 
-                                                                        f'results_nss_{SALIENCY}.csv'), index=False)
+                                                                        f'results_nss_{SALIENCY}_{args.name}.csv'), index=False)
 
     # dump debug
-    with open(os.path.join(results_path, vid_codes[VIDEO], f'dump_nss_{SALIENCY}.json'), 'w') as jf:
+    with open(os.path.join(results_path, vid_codes[VIDEO], f'dump_nss_{SALIENCY}_{args.name}.json'), 'w') as jf:
         json.dump(results_nss[1], jf)
         
     #print('Ok! BUT NOT SAVED')
-    print('Ok and saved!')
+    print('Ok and saved! Total subjects processed: ', len(df_nss_exploded.ID.unique()))
