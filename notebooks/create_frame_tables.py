@@ -12,12 +12,14 @@ if __name__=='__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-F','--frameskip',default=5, type=int, help='create table every F frames')
     parser.add_argument('-S','--scenes', default=False, type=bool, help='group all frames inside scene')
+    parser.add_argument('-fn', '--filename', default='results_nss_diary.csv', type=str, help='name of the file with NSS values')
     args = parser.parse_args()
     
     VIDEO = 'WK'
     VIDEO_NAME = 'Diary'
-    results_path = '../results/'
-    file = 'results_nss_diary.csv'
+    results_path = './../results/'
+    #file = 'results_nss_diary.csv'
+    file = args.filename
     NFRAMES = 2817
     SKIP_FRAMES = args.frameskip
     
@@ -62,15 +64,18 @@ if __name__=='__main__':
         # TODO: cambiar path para que sea una entrada de la linea de comandos
         #scenes_data =  pd.read_csv('/hdd/ReposPesados/SaliencyADHD/videos_data/Diary/scenes/Diary_of_a_Wimpy_Kid_Trailer-Scenes.csv',
         #                           header=1)
-        scenes_data = pd.read_csv('/hdd/ReposPesados/SaliencyADHD/videos_data/Diary/scenes/ManualSceneCut_WK.csv', 
+        scenes_cuts_file = '/hdd/ReposPesados/SaliencyADHD/videos_data/Diary/scenes/ManualSceneCut_WK.csv'
+        print('Using scenes cuts file: {}'.format(scenes_cuts_file))
+        scenes_data = pd.read_csv(scenes_cuts_file, 
                           sep=';').rename(columns={'SceneNumber': 'Scene Number','StartFrame':'Start Frame', 'EndFrame':'End Frame'})
         saliency_models = ['NSS_vn', 'NSS_fg']
         scenes_wk = calc_scenes(df, scenes_data)
         df['Scenes'] = scenes_wk.fillna(-1).astype(int) + 1 # scenes index starts at 1
         # NOTE: borramos los frames negros, entonces aparecen nans que representan las escenas faltantes, los tiramos
         #df = df[~df.Scenes.isna()]
+        bef_nans = df.shape[0]
         df = df[df.Scenes!=0]
-        print(df.shape)
+        print(f'WARNING: Erased a total of {bef_nans - df.shape[0]} missing scenes values')
         # TODO: agregar que pueda guardar el error estandar de la media de las escenas
         df_scene_vals = df.groupby(['ID', 'Scenes'])[saliency_models].mean().reset_index(level=[1])
         for scene in df_scene_vals.Scenes.unique():

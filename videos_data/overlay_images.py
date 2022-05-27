@@ -4,11 +4,12 @@ import argparse
 
 if __name__=='__main__':
     
-    saliency = 'vinet'
+    saliency = 'finegrained'
     vid_name = 'Diary'
     background_path = f'./{vid_name}/frames/'
     overlay_path = f'./../videos_sal/{saliency}/{vid_name}/'
-    save_folder = './extras/'
+    save_folder = f'./extras/{saliency}/{vid_name}/'
+    if ~os.path.exists(save_folder): os.mkdir(save_folder)
     background_weight = 0.80
     overlay_weight = 0.20
     
@@ -28,4 +29,4 @@ if __name__=='__main__':
         i+=1
         
 # para armar el video
-#ffmpeg -framerate 60 -i ./extras/extra_diary_vinet_%04d.jpg diary_vinet_overlay.mp4
+#ffmpeg -framerate 60 -i ./extras/vinet/Diary/extra_diary_vinet_%04d.jpg diary_vinet_overlay.mp4

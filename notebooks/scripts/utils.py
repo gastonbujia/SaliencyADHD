@@ -96,8 +96,8 @@ def calc_scenes(df, df_scenes):
     Returns:
         _type_: _description_
     """
-    scenes_vals = [j for j in range(df_scenes.shape[0]) for _ in range(df_scenes.iloc[j]['Start Frame'], df_scenes.iloc[j]['End Frame'])]
-    scenes_fram = range(df_scenes.iloc[-1]['End Frame'])
+    scenes_vals = [j for j in range(df_scenes.shape[0]) for _ in range(df_scenes.iloc[j]['Start Frame'], df_scenes.iloc[j]['End Frame']+1)]
+    scenes_fram = range(df_scenes.iloc[-1]['End Frame']+1)
     #assert len(scenes_vals) == len(scenes_fram)
     scenes_dict = dict(zip(scenes_fram, scenes_vals))
     new_col = df['FRAME_idx'].map(scenes_dict)

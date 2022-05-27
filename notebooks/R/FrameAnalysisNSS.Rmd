@@ -3,6 +3,21 @@ title: "R Notebook"
 output: html_notebook
 ---
 
+```{}
+```
+
+```{r}
+knitr::opts_chunk$set(echo = TRUE)
+objects()
+rm(list=ls())
+options(warn=-1)
+
+wd <- getwd()
+source('/hdd/ReposPesados/SaliencyADHD/notebooks/R/readDataTable.R')
+source('/hdd/ReposPesados/SaliencyADHD/notebooks/R/removeOutliers.R')
+source('/hdd/ReposPesados/SaliencyADHD/notebooks/R/getOutlierList.R')
+```
+
 ```{r lib, include=FALSE}
 library(lme4)
 library(car)
@@ -51,7 +66,8 @@ for (file in csv_files){
     DF <- rbind(D.fg, D.vn)
     DF$ADHDCategory <- as.factor(DF$ADHDCategory)
     DF$SemLevel <- as.factor(DF$SemLevel)
-    m.cat <- lmer(NSS ~ Age + Sex + IQ + EHQ_Total + samplingRate + ADHDCategory * SemLevel + (1|ID), data=DF, na.action = na.omit)
+    # ojo que le saque el random effect, entonces habria que fijrse si esto anda
+    m.cat <- lm(NSS ~ Age + Sex + IQ + EHQ_Total + samplingRate + ADHDCategory * SemLevel,                   data=DF, na.action = na.omit)
     aux <- summary(m.cat)$coefficients
     summary(aux)
     write.csv(aux, paste(resultsPath, 'frame_models/', file ,sep=""))
@@ -90,7 +106,9 @@ for (file in csv_files){
     DF <- rbind(D.fg, D.vn)
     DF$ADHDCategory <- as.factor(DF$ADHDCategory)
     DF$SemLevel <- as.factor(DF$SemLevel)
-    m.cat <- lmer(NSS ~ Age + Sex + IQ + EHQ_Total + samplingRate + ADHDCategory * SemLevel + (1|ID), data=DF, na.action = na.omit)
+    #m.cat <- lmer(NSS ~ Age + Sex + IQ + EHQ_Total + samplingRate + ADHDCategory * SemLevel + (1|ID), data=DF, na.action = na.omit)
+    m.cat <- lm(NSS ~ Age + Sex + IQ + EHQ_Total + samplingRate + ADHDCategory * SemLevel, 
+                  data=DF, na.action = na.omit)
     aux <- summary(m.cat)$coefficients
     summary(aux)
     write.csv(aux, paste(resultsPath, 'scene_models/', file ,sep=""))

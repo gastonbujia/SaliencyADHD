@@ -39,7 +39,7 @@ def get_saliency_values(y,x,saliency, crux = True):
             sal_val += saliency[x,y-1]    
             c+=1
 
-    sal_val += float(saliency[x,y])
+    #sal_val += float(saliency[x,y])
         
     return sal_val/c
 
